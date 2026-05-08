@@ -10,14 +10,12 @@ from fastapi.staticfiles import StaticFiles
 import auth
 import collector
 import database
+import log_config
 import retention
 from routes import logs as logs_router
 from routes import ws as ws_router
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s %(levelname)s %(name)s: %(message)s",
-)
+log_config.setup_logging()
 logger = logging.getLogger(__name__)
 
 STATIC_DIR = Path(__file__).parent / "static"
