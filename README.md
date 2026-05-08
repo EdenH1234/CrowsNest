@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="https://raw.githubusercontent.com/EdenH1234/CrowsNest/main/frontend/public/logo.svg" alt="CrowsNest" width="120" />
+</p>
+
 # CrowsNest
 
 [![CI](https://github.com/EdenH1234/CrowsNest/actions/workflows/ci.yml/badge.svg)](https://github.com/EdenH1234/CrowsNest/actions/workflows/ci.yml)
