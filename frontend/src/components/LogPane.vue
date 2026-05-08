@@ -281,15 +281,15 @@ onUnmounted(() => { if (ws) ws.close() })
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  background: #0f1117;
+  background: var(--bg-page);
 }
 .toolbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0.5rem 1rem;
-  border-bottom: 1px solid #1e2235;
-  background: #13151f;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-surface);
   gap: 0.75rem;
   flex-wrap: wrap;
 }
@@ -316,7 +316,7 @@ onUnmounted(() => { if (ws) ws.close() })
   border-radius: 50%;
 }
 .status-dot.running { background: #22c55e; }
-.status-dot.stopped { background: #4a5568; }
+.status-dot.stopped { background: #94a3b8; }
 
 .log-output {
   flex: 1;
@@ -335,14 +335,14 @@ onUnmounted(() => { if (ws) ws.close() })
   word-break: break-all;
 }
 .log-line:hover {
-  background: rgba(255,255,255,0.03);
+  background: var(--log-hover);
 }
 .log-line.stderr .msg {
-  color: #f87171;
+  color: var(--log-stderr);
 }
 .ts {
   flex-shrink: 0;
-  color: #4a5568;
+  color: var(--log-ts);
   user-select: none;
   font-size: 0.72rem;
   padding-top: 1px;
@@ -384,12 +384,12 @@ onUnmounted(() => { if (ws) ws.close() })
   letter-spacing: 0.04em;
   flex-shrink: 0;
 }
-.log-level.info    { background: #1e3a5f; color: #60a5fa; }
-.log-level.warning { background: #3b2f00; color: #f59e0b; }
-.log-level.error   { background: #3b0f0f; color: #f87171; }
-.log-level.debug   { background: #1e2235; color: #6b7280; }
+.log-level.info    { background: var(--badge-info-bg);  color: var(--badge-info-text); }
+.log-level.warning { background: var(--badge-warn-bg);  color: var(--badge-warn-text); }
+.log-level.error   { background: var(--badge-error-bg); color: var(--badge-error-text); }
+.log-level.debug   { background: var(--badge-debug-bg); color: var(--badge-debug-text); }
 .log-logger {
-  color: #4a5568;
+  color: var(--text-muted);
   font-size: 0.72rem;
   flex-shrink: 0;
 }
@@ -398,10 +398,10 @@ onUnmounted(() => { if (ws) ws.close() })
   margin-left: 0.1rem;
 }
 .log-text {
-  color: #cbd5e1;
+  color: var(--log-text);
 }
 .expand-toggle {
-  color: #4a5568;
+  color: var(--text-muted);
   font-size: 0.7rem;
   opacity: 0;
   transition: opacity 0.1s;
@@ -411,9 +411,9 @@ onUnmounted(() => { if (ws) ws.close() })
   width: 100%;
   margin: 0.25rem 0 0.25rem 0;
   padding: 0.5rem 0.75rem;
-  background: #0a0d14;
-  border-left: 2px solid #1e2235;
-  color: #6b7280;
+  background: var(--bg-sunken);
+  border-left: 2px solid var(--border);
+  color: var(--text-muted);
   font-size: 0.72rem;
   white-space: pre;
   overflow-x: auto;
@@ -421,7 +421,7 @@ onUnmounted(() => { if (ws) ws.close() })
 }
 
 .msg {
-  color: #cbd5e1;
+  color: var(--log-text);
   flex: 1;
 }
 .log-divider {
@@ -448,7 +448,7 @@ onUnmounted(() => { if (ws) ws.close() })
   justify-content: center;
   gap: 0.5rem;
   height: 100%;
-  color: #4a5568;
+  color: var(--text-muted);
   font-size: 0.9rem;
 }
 </style>

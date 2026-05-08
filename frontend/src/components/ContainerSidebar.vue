@@ -4,11 +4,20 @@
       <CrowsNestLogo :size="24" />
       <span>CrowsNest</span>
       <Button
+        :icon="isDark ? 'pi pi-sun' : 'pi pi-moon'"
+        text
+        rounded
+        size="small"
+        class="header-btn"
+        @click="toggle"
+        v-tooltip.right="isDark ? 'Light mode' : 'Dark mode'"
+      />
+      <Button
         icon="pi pi-sign-out"
         text
         rounded
         size="small"
-        class="logout-btn"
+        class="header-btn"
         @click="logout"
         v-tooltip.right="'Sign out'"
       />
@@ -53,12 +62,14 @@ import InputText from 'primevue/inputtext'
 import IconField from 'primevue/iconfield'
 import InputIcon from 'primevue/inputicon'
 import CrowsNestLogo from './CrowsNestLogo.vue'
+import { useTheme } from '../composables/useTheme.js'
 import api from '../api.js'
 
 const props = defineProps({ selected: String })
 defineEmits(['select'])
 
 const router = useRouter()
+const { isDark, toggle } = useTheme()
 const containers = ref([])
 const filter = ref('')
 let pollTimer = null
@@ -101,8 +112,8 @@ onUnmounted(() => clearInterval(pollTimer))
 .sidebar {
   width: 240px;
   flex-shrink: 0;
-  background: #13151f;
-  border-right: 1px solid #1e2235;
+  background: var(--bg-surface);
+  border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -114,15 +125,18 @@ onUnmounted(() => clearInterval(pollTimer))
   padding: 1rem;
   font-weight: 600;
   font-size: 0.9rem;
-  color: #94a3b8;
-  border-bottom: 1px solid #1e2235;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border);
 }
-.logout-btn {
+.header-btn {
   margin-left: auto;
+}
+.header-btn + .header-btn {
+  margin-left: 0;
 }
 .search-box {
   padding: 0.6rem 0.75rem;
-  border-bottom: 1px solid #1e2235;
+  border-bottom: 1px solid var(--border);
 }
 .group {
   margin-top: 0.25rem;
@@ -135,7 +149,7 @@ onUnmounted(() => clearInterval(pollTimer))
   font-size: 0.7rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #4a5568;
+  color: var(--text-muted);
 }
 .container-item {
   display: flex;
@@ -148,11 +162,11 @@ onUnmounted(() => clearInterval(pollTimer))
   transition: background 0.1s;
 }
 .container-item:hover {
-  background: #1e2235;
+  background: var(--bg-hover);
 }
 .container-item.active {
-  background: #252a40;
-  color: #7c9ef8;
+  background: var(--bg-active);
+  color: var(--text-active);
 }
 .status-dot {
   width: 7px;
@@ -161,7 +175,7 @@ onUnmounted(() => clearInterval(pollTimer))
   flex-shrink: 0;
 }
 .status-dot.running { background: #22c55e; }
-.status-dot.stopped { background: #4a5568; }
+.status-dot.stopped { background: #94a3b8; }
 .name {
   font-size: 0.82rem;
   overflow: hidden;
@@ -174,7 +188,7 @@ onUnmounted(() => clearInterval(pollTimer))
   align-items: center;
   gap: 0.5rem;
   padding: 2rem 1rem;
-  color: #4a5568;
+  color: var(--text-muted);
   font-size: 0.85rem;
 }
 </style>
