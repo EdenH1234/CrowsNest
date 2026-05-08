@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/EdenH1234/CrowsNest/main/frontend/public/logo.svg" alt="CrowsNest" width="120" />
+  <img src="https://raw.githubusercontent.com/EdenH1234/CrowsNest/development/frontend/public/logo.svg" alt="CrowsNest" width="120" />
 </p>
 
 # CrowsNest
