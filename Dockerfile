@@ -6,7 +6,14 @@ RUN npm ci
 COPY frontend/ ./
 RUN npm run build
 
-# Stage 2: Python runtime
+# Stage 2: Test runner
+FROM python:3.12-slim AS test
+WORKDIR /app
+COPY backend/requirements.txt backend/requirements-test.txt ./
+RUN pip install --no-cache-dir -r requirements.txt -r requirements-test.txt
+COPY backend/ ./
+
+# Stage 3: Python runtime
 FROM python:3.12-slim
 WORKDIR /app
 
