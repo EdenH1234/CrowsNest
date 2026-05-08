@@ -1,0 +1,15 @@
+services:
+  crowsnest:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "${PORT:-8080}:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./data:/data
+    environment:
+      - SECRET_KEY=${SECRET_KEY:-change-me-in-production}
+      - ADMIN_USER=${ADMIN_USER:-admin}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin}
+      - LOG_RETENTION_DAYS=${LOG_RETENTION_DAYS:-30}
+      - DB_PATH=/data/logs.db
