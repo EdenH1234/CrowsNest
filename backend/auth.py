@@ -1,7 +1,11 @@
+import logging
 import os
+import secrets
 import time
 
 import bcrypt
+
+logger = logging.getLogger(__name__)
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jose import JWTError, jwt
@@ -19,7 +23,9 @@ ALGORITHM = "HS256"
 
 def init_auth() -> None:
     global SECRET_KEY, ADMIN_USER, _admin_password_hash
-    SECRET_KEY = os.environ.get("SECRET_KEY", "change-me-in-production")
+    SECRET_KEY = os.environ.get("SECRET_KEY") or secrets.token_hex(32)
+    if not os.environ.get("SECRET_KEY"):
+        logger.warning("SECRET_KEY not set — generated a random key. All sessions will be invalidated on restart.")
     ADMIN_USER = os.environ.get("ADMIN_USER", "admin")
     raw_password = os.environ.get("ADMIN_PASSWORD", "admin")
     _admin_password_hash = bcrypt.hashpw(raw_password.encode(), bcrypt.gensalt())

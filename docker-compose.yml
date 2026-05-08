@@ -8,7 +8,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./data:/data
     environment:
-      - SECRET_KEY=${SECRET_KEY:-change-me-in-production}
+      - SECRET_KEY=${SECRET_KEY:-}
       - ADMIN_USER=${ADMIN_USER:-admin}
       - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin}
       - LOG_RETENTION_DAYS=${LOG_RETENTION_DAYS:-30}
