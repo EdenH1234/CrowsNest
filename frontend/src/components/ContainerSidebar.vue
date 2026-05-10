@@ -1,8 +1,10 @@
 <template>
   <aside class="sidebar">
     <div class="sidebar-header">
-      <CrowsNestLogo :size="24" />
-      <span>CrowsNest</span>
+      <button class="home-btn" @click="$emit('home')" v-tooltip.right="'Dashboard'">
+        <CrowsNestLogo :size="24" />
+        <span>CrowsNest</span>
+      </button>
       <Button
         :icon="isDark ? 'pi pi-sun' : 'pi pi-moon'"
         text
@@ -134,7 +136,7 @@ import { useTheme } from '../composables/useTheme.js'
 import api from '../api.js'
 
 const props = defineProps({ selected: String })
-const emit = defineEmits(['select'])
+const emit = defineEmits(['select', 'home'])
 
 const router = useRouter()
 const { isDark, toggle } = useTheme()
@@ -242,11 +244,26 @@ onUnmounted(() => clearInterval(pollTimer))
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 1rem;
+  padding: 0.6rem 1rem;
+  border-bottom: 1px solid var(--border);
+}
+.home-btn {
+  all: unset;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
   font-weight: 600;
   font-size: 0.9rem;
   color: var(--text-secondary);
-  border-bottom: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.25rem 0.25rem;
+  flex: 1;
+  overflow: hidden;
+  transition: color 0.1s;
+}
+.home-btn:hover {
+  color: var(--text-primary);
 }
 .header-btn {
   margin-left: auto;

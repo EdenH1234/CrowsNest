@@ -3,8 +3,10 @@
     <ContainerSidebar
       :selected="selectedId"
       @select="onSelect"
+      @home="onHome"
     />
-    <LogPane :container="selectedContainer" />
+    <DashboardView v-if="!selectedContainer" @select="onSelect" />
+    <LogPane v-else :container="selectedContainer" />
   </div>
 </template>
 
@@ -12,6 +14,7 @@
 import { ref } from 'vue'
 import ContainerSidebar from './ContainerSidebar.vue'
 import LogPane from './LogPane.vue'
+import DashboardView from './DashboardView.vue'
 
 const selectedId = ref(null)
 const selectedContainer = ref(null)
@@ -19,6 +22,11 @@ const selectedContainer = ref(null)
 function onSelect(container) {
   selectedId.value = container?.container_id ?? null
   selectedContainer.value = container ?? null
+}
+
+function onHome() {
+  selectedId.value = null
+  selectedContainer.value = null
 }
 </script>
 
