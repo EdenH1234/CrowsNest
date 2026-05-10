@@ -1,6 +1,9 @@
 # data
 data/
 
+# example
+example/
+
 # env
 .env
 .env.*

@@ -32,6 +32,14 @@
             <div class="card-top">
               <span class="status-dot" :class="c.status" />
               <span class="card-name" :title="c.container_name">{{ c.container_name }}</span>
+              <span
+                v-if="stats[c.container_name]?.health_status"
+                class="health-badge"
+                :class="stats[c.container_name].health_status"
+                :title="`Health: ${stats[c.container_name].health_status}`"
+              >
+                <i :class="healthIcon(stats[c.container_name].health_status)" />
+              </span>
             </div>
 
             <div v-if="c.compose_service && c.compose_service !== c.container_name" class="card-service">
@@ -109,6 +117,12 @@ const runningCount = computed(() => containers.value.filter(c => c.status === 'r
 const stoppedCount = computed(() => containers.value.filter(c => c.status === 'stopped').length)
 
 function clamp(v) { return Math.min(Math.max(v, 0), 100) }
+
+function healthIcon(status) {
+  if (status === 'healthy') return 'pi pi-heart-fill'
+  if (status === 'unhealthy') return 'pi pi-times-circle'
+  return 'pi pi-spin pi-spinner'
+}
 
 function cpuClass(pct) {
   if (pct >= 80) return 'danger'
@@ -293,6 +307,15 @@ onUnmounted(() => {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+.health-badge {
+  font-size: 0.62rem;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+.health-badge.healthy   { color: #22c55e; }
+.health-badge.unhealthy { color: #f87171; }
+.health-badge.starting  { color: #f59e0b; }
 
 .card-service {
   font-size: 0.7rem;

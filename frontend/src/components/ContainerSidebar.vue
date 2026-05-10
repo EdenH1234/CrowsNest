@@ -43,6 +43,14 @@
           <i :class="group.project ? 'pi pi-folder' : 'pi pi-box'" />
           <span class="group-name">{{ group.project || 'standalone' }}</span>
           <button
+            v-if="group.project && group.containers.length > 1"
+            class="group-action-btn"
+            v-tooltip.right="'Combined log stream'"
+            @click.stop="$emit('select-group', group)"
+          >
+            <i class="pi pi-link" />
+          </button>
+          <button
             class="delete-group-btn"
             v-tooltip.right="'Delete group'"
             @click.stop="promptDelete(group)"
@@ -136,7 +144,7 @@ import { useTheme } from '../composables/useTheme.js'
 import api from '../api.js'
 
 const props = defineProps({ selected: String })
-const emit = defineEmits(['select', 'home'])
+const emit = defineEmits(['select', 'home', 'select-group'])
 
 const router = useRouter()
 const { isDark, toggle } = useTheme()
@@ -294,6 +302,7 @@ onUnmounted(() => clearInterval(pollTimer))
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.group-action-btn,
 .delete-group-btn {
   all: unset;
   cursor: pointer;
@@ -305,12 +314,12 @@ onUnmounted(() => clearInterval(pollTimer))
   color: var(--text-muted);
   transition: opacity 0.1s, color 0.1s;
 }
+.group-label:hover .group-action-btn,
 .group-label:hover .delete-group-btn {
   opacity: 1;
 }
-.delete-group-btn:hover {
-  color: #f87171;
-}
+.group-action-btn:hover { color: #60a5fa; }
+.delete-group-btn:hover { color: #f87171; }
 .container-item {
   display: flex;
   align-items: center;

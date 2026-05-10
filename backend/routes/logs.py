@@ -64,10 +64,13 @@ async def container_stats() -> list[dict]:
                 mem_pct = (mem_usage / mem_limit * 100) if mem_limit > 0 else 0.0
 
                 labels = c.labels or {}
+                state = c.attrs.get("State", {})
+                health = state.get("Health", {})
                 return {
                     "container_name": c.name.lstrip("/"),
                     "compose_project": labels.get("com.docker.compose.project"),
-                    "started_at": c.attrs.get("State", {}).get("StartedAt", ""),
+                    "started_at": state.get("StartedAt", ""),
+                    "health_status": health.get("Status") or None,
                     "cpu_pct": round(cpu_pct, 1),
                     "mem_mb": round(mem_usage / 1024 / 1024, 1),
                     "mem_limit_mb": round(mem_limit / 1024 / 1024, 0),
