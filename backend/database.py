@@ -50,6 +50,15 @@ def init_db() -> None:
                 content_rowid=id
             );
 
+            -- Keep FTS in sync with logs via triggers (far cheaper than rebuild).
+            CREATE TRIGGER IF NOT EXISTS logs_ai AFTER INSERT ON logs BEGIN
+                INSERT INTO logs_fts(rowid, message) VALUES (new.id, new.message);
+            END;
+            CREATE TRIGGER IF NOT EXISTS logs_ad AFTER DELETE ON logs BEGIN
+                INSERT INTO logs_fts(logs_fts, rowid, message)
+                    VALUES ('delete', old.id, old.message);
+            END;
+
             CREATE TABLE IF NOT EXISTS containers (
                 container_name  TEXT PRIMARY KEY,
                 container_id    TEXT NOT NULL,
@@ -89,8 +98,6 @@ def insert_logs(rows: list[dict]) -> None:
             """,
             rows,
         )
-        # Keep FTS in sync
-        conn.execute("INSERT INTO logs_fts(logs_fts) VALUES('rebuild')")
 
 
 def upsert_container(
@@ -162,10 +169,11 @@ def query_logs(
     params: list = []
 
     if q:
-        clauses.append(
-            "id IN (SELECT rowid FROM logs_fts WHERE logs_fts MATCH ?)"
-        )
-        params.append(q)
+        # Wrap in double-quotes so FTS5 treats the input as a phrase,
+        # preventing syntax errors from special characters like ( ) - * : .
+        fts_query = '"{}"'.format(q.replace('"', '""'))
+        clauses.append("id IN (SELECT rowid FROM logs_fts WHERE logs_fts MATCH ?)")
+        params.append(fts_query)
 
     if container_name:
         clauses.append("container_name = ?")
@@ -240,7 +248,6 @@ def purge_deleted_containers(before: float) -> int:
         conn.execute(
             f"DELETE FROM logs WHERE container_name IN ({placeholders})", name_list
         )
-        conn.execute("INSERT INTO logs_fts(logs_fts) VALUES('rebuild')")
         cur = conn.execute(
             f"DELETE FROM containers WHERE container_name IN ({placeholders})", name_list
         )
@@ -252,5 +259,6 @@ def delete_old_logs(retention_days: int) -> int:
     with get_conn() as conn:
         cur = conn.execute("DELETE FROM logs WHERE timestamp < ?", (cutoff,))
         if cur.rowcount:
-            conn.execute("INSERT INTO logs_fts(logs_fts) VALUES('rebuild')")
+            # Compact FTS tombstones left by the delete triggers.
+            conn.execute("INSERT INTO logs_fts(logs_fts) VALUES('optimize')")
         return cur.rowcount
