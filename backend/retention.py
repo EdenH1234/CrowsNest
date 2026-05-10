@@ -1,6 +1,7 @@
 import asyncio
 import logging
 import os
+import time
 
 import database
 
@@ -19,3 +20,9 @@ async def run_retention_loop() -> None:
                 logger.info("Retention: deleted %d log rows older than %d days", deleted, days)
         except Exception as e:
             logger.error("Retention error: %s", e)
+        try:
+            purged = database.purge_deleted_containers(time.time() - 7 * 86400)
+            if purged:
+                logger.info("Retention: purged %d soft-deleted container groups", purged)
+        except Exception as e:
+            logger.error("Retention purge error: %s", e)

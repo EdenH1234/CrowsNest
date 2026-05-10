@@ -33,6 +33,7 @@ def _container_meta(container: Container) -> dict:
         "container_name": container.name.lstrip("/"),
         "compose_project": labels.get("com.docker.compose.project"),
         "compose_service": labels.get("com.docker.compose.service"),
+        "image_tag": container.attrs.get("Config", {}).get("Image", ""),
     }
 
 
@@ -70,6 +71,7 @@ def _tail_thread(container: Container, stop: threading.Event) -> None:
         meta["container_id"], meta["container_name"],
         meta["compose_project"], meta["compose_service"],
         status="running",
+        image_tag=meta["image_tag"],
     )
     if is_restart:
         divider = {
@@ -125,29 +127,32 @@ def _tail_thread(container: Container, stop: threading.Event) -> None:
             meta["container_id"], meta["container_name"],
             meta["compose_project"], meta["compose_service"],
             status="stopped",
+            image_tag=meta["image_tag"],
         )
 
 
 def _events_thread() -> None:
-    client = _get_client()
-    try:
-        for event in client.events(decode=True, filters={"type": "container"}):
-            action = event.get("Action", "")
-            cid = event.get("id", "")
-            if action == "start" and cid:
-                try:
-                    container = client.containers.get(cid)
-                    _schedule_container_task(container)
-                except Exception as e:
-                    logger.warning("Could not attach to container %s: %s", cid, e)
-            elif action in ("stop", "die", "destroy") and cid:
-                if _loop is None:
-                    continue
-                task = _collector_tasks.get(cid)
-                if task and not task.done():
-                    _loop.call_soon_threadsafe(task.cancel)
-    except Exception as e:
-        logger.error("Docker event stream error: %s", e)
+    while True:
+        try:
+            client = _get_client()
+            for event in client.events(decode=True, filters={"type": "container"}):
+                action = event.get("Action", "")
+                cid = event.get("id", "")
+                if action == "start" and cid:
+                    try:
+                        container = client.containers.get(cid)
+                        _schedule_container_task(container)
+                    except Exception as e:
+                        logger.warning("Could not attach to container %s: %s", cid, e)
+                elif action in ("stop", "die", "destroy") and cid:
+                    if _loop is None:
+                        continue
+                    task = _collector_tasks.get(cid)
+                    if task and not task.done():
+                        _loop.call_soon_threadsafe(task.cancel)
+        except Exception as e:
+            logger.error("Docker event stream error: %s — retrying in 5s", e)
+            time.sleep(5)
 
 
 # ── Async wrappers (only schedule work — no blocking I/O) ─────────────────────

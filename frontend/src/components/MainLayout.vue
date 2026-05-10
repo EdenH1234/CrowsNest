@@ -17,8 +17,8 @@ const selectedId = ref(null)
 const selectedContainer = ref(null)
 
 function onSelect(container) {
-  selectedId.value = container.container_id
-  selectedContainer.value = container
+  selectedId.value = container?.container_id ?? null
+  selectedContainer.value = container ?? null
 }
 </script>
 
