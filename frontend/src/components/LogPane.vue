@@ -269,7 +269,8 @@ watch(
     if (!c) return
     await loadHistory()
     connectWs()
-  }
+  },
+  { immediate: true }
 )
 
 onUnmounted(() => { if (ws) ws.close() })
