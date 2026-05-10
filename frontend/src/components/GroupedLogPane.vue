@@ -53,7 +53,18 @@
     </div>
 
     <div ref="logEl" class="log-output" @scroll="onScroll">
-      <div v-if="lines.length === 0 && !loading" class="placeholder">No logs found</div>
+      <div v-if="lines.length === 0 && !loading" class="placeholder empty-hint">
+        <i class="pi pi-inbox" style="font-size: 1.4rem; opacity: 0.4" />
+        <span v-if="searchQuery">
+          No logs matching <strong>{{ searchQuery }}</strong>
+          <span v-if="timeRange.seconds"> in {{ timeRange.label.toLowerCase() }}</span>
+        </span>
+        <span v-else-if="timeRange.seconds">No logs in {{ timeRange.label.toLowerCase() }}</span>
+        <span v-else>No logs recorded for this group</span>
+        <button v-if="timeRange.seconds" class="widen-btn" @click="widenRange">
+          Try all time <i class="pi pi-arrow-right" />
+        </button>
+      </div>
 
       <template v-for="line in lines" :key="line._key">
         <div v-if="line.stream === 'system'" class="log-divider">
@@ -235,6 +246,11 @@ async function loadHistory() {
 
 function clearSearch() {
   searchQuery.value = ''
+  loadHistory()
+}
+
+function widenRange() {
+  timeRange.value = TIME_RANGES[TIME_RANGES.length - 1]
   loadHistory()
 }
 
@@ -455,4 +471,24 @@ onUnmounted(closeAll)
   color: var(--text-muted);
   font-size: 0.9rem;
 }
+.empty-hint {
+  flex-direction: column;
+  gap: 0.6rem;
+  font-size: 0.85rem;
+  text-align: center;
+}
+.widen-btn {
+  all: unset;
+  cursor: pointer;
+  font-size: 0.78rem;
+  color: #60a5fa;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 4px;
+  border: 1px solid #60a5fa44;
+  transition: background 0.1s;
+}
+.widen-btn:hover { background: #60a5fa18; }
 </style>
