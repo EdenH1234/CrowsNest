@@ -222,7 +222,7 @@ function logout() {
 
 onMounted(() => {
   fetchContainers()
-  pollTimer = setInterval(fetchContainers, 5000)
+  pollTimer = setInterval(fetchContainers, 2000)
 })
 
 onUnmounted(() => clearInterval(pollTimer))

@@ -17,6 +17,7 @@ _loop: asyncio.AbstractEventLoop | None = None
 
 BATCH_SIZE = 50
 BATCH_INTERVAL = 0.5
+RECONCILE_INTERVAL = 10
 
 
 def _get_client() -> docker.DockerClient:
@@ -132,9 +133,10 @@ def _tail_thread(container: Container, stop: threading.Event) -> None:
 
 
 def _events_thread() -> None:
+    # Each retry creates a fresh client so a stale connection can't block recovery.
     while True:
         try:
-            client = _get_client()
+            client = docker.from_env()
             for event in client.events(decode=True, filters={"type": "container"}):
                 action = event.get("Action", "")
                 cid = event.get("id", "")
@@ -175,6 +177,24 @@ async def _start_container_task(container: Container) -> None:
     )
 
 
+async def _reconcile_loop() -> None:
+    """Periodically checks for running containers not yet being tailed.
+
+    Guards against events missed during stream reconnects or startup races.
+    """
+    while True:
+        await asyncio.sleep(RECONCILE_INTERVAL)
+        try:
+            client = _get_client()
+            running = client.containers.list(all=False)
+            for container in running:
+                if container.id not in _collector_tasks or _collector_tasks[container.id].done():
+                    logger.info("Reconciler picking up untracked container %s", container.name)
+                    await _start_container_task(container)
+        except Exception as e:
+            logger.warning("Reconcile error: %s", e)
+
+
 async def start_collector() -> None:
     global _loop
     _loop = asyncio.get_event_loop()
@@ -185,6 +205,7 @@ async def start_collector() -> None:
         await _start_container_task(container)
 
     threading.Thread(target=_events_thread, daemon=True, name="docker-events").start()
+    asyncio.create_task(_reconcile_loop(), name="reconcile")
     logger.info("Collector started, watching %d containers", len(running))
 
 
